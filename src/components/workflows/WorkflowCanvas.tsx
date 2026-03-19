@@ -97,11 +97,31 @@ export function WorkflowCanvas({ workflow, initialScenarioId }: Props) {
         console.error("Auto-save failed:", err);
         setSaveStatus("error");
       }
-    }, 1500);
+    }, 500);
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
   }, [nodes, edges, workflow.id]);
+
+  // ── Flush save (immediate, cancels pending debounce) ─────────────────────
+  const flushSave = useCallback(async () => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    setSaveStatus("saving");
+    try {
+      await saveCanvas(
+        workflow.id,
+        nodesRef.current as WorkflowNode[],
+        edgesRef.current as WorkflowEdge[]
+      );
+      setSaveStatus("saved");
+    } catch (err) {
+      console.error("Flush save failed:", err);
+      setSaveStatus("error");
+    }
+  }, [workflow.id]);
 
   // ── History helpers ───────────────────────────────────────────────────────
   const pushHistory = useCallback(() => {
@@ -390,6 +410,7 @@ export function WorkflowCanvas({ workflow, initialScenarioId }: Props) {
         onUndo={undo}
         onRedo={redo}
         onFitView={onFitView}
+        onFlushSave={flushSave}
       />
 
       <div style={{ position: "relative", flex: 1, minHeight: 0, display: "flex" }}>

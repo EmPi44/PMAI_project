@@ -93,12 +93,14 @@ Full-stack app with Next.js frontend, Python backend, and Supabase for database,
 - Use Supabase Auth helpers - never roll custom auth
 
 ## Testing Approach
+- **Before writing tests**: decide HOW this will be tested and confirm it's feasible - flag early if the design makes it untestable
 - Python backend: strict TDD - write failing test first, then implement (red → green → refactor)
 - Next.js utils and custom hooks: TDD
 - React components: write tests alongside using React Testing Library
 - Critical user flows (auth, key journeys): Playwright E2E tests
 - Supabase DB functions: manual verification against dev DB
 - Never mark a feature done without running the relevant tests
+- **Parallel agents for tests**: when running multiple independent suites (e.g. unit + integration + E2E), spawn them as parallel agents - each suite runs in its own context, no shared state, faster total time
 
 ## Supabase MCP
 - The Supabase MCP server for this project is named **`PMAI_supabase`**
@@ -112,3 +114,4 @@ Full-stack app with Next.js frontend, Python backend, and Supabase for database,
 - For changes under 20 lines just do it - for larger changes show a plan first
 - After any code change, run lint + typecheck before saying you're done
 - Use /clear between unrelated tasks
+- Keep `TASKS.md` at the project root up to date (see global CLAUDE.md for format and trigger rules)

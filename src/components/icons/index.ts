@@ -14,6 +14,8 @@ export {
   MetricsIcon,
   QuestionsIcon,
   ClientsIcon,
+  DocsIcon,
+  RequirementsIcon,
 } from "./NavIcons";
 export {
   ChevronIcon,

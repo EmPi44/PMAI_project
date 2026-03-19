@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { T } from "@/lib/tokens";
 import type { WorkflowScenario, ActorType } from "./types";
 import type { SaveStatus } from "./WorkflowCanvas";
@@ -28,6 +28,7 @@ interface Props {
   onUndo: () => void;
   onRedo: () => void;
   onFitView: () => void;
+  onFlushSave: () => Promise<void>;
 }
 
 const ADD_OPTIONS: { label: string; icon: string; spec: AddNodeType; color: string }[] = [
@@ -144,20 +145,10 @@ export function WorkflowToolbar({
   onUndo,
   onRedo,
   onFitView,
+  onFlushSave,
 }: Props) {
+  const router = useRouter();
   const [addMenuOpen, setAddMenuOpen] = useState(false);
-  const addBtnRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!addMenuOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (addBtnRef.current && !addBtnRef.current.contains(e.target as Node)) {
-        setAddMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [addMenuOpen]);
 
   return (
     <div
@@ -174,8 +165,11 @@ export function WorkflowToolbar({
       }}
     >
       {/* ── Left zone ─────────────────────────────────────────────────────── */}
-      <Link
-        href="/workflows"
+      <button
+        onClick={async () => {
+          await onFlushSave();
+          router.push("/workflows");
+        }}
         style={{
           display: "flex",
           alignItems: "center",
@@ -185,6 +179,9 @@ export function WorkflowToolbar({
           textDecoration: "none",
           padding: "4px 8px",
           borderRadius: 4,
+          border: "none",
+          background: "transparent",
+          cursor: "pointer",
           transition: "all 150ms",
           flexShrink: 0,
         }}
@@ -198,7 +195,7 @@ export function WorkflowToolbar({
         }}
       >
         ← Workflows
-      </Link>
+      </button>
 
       <Divider />
 
@@ -219,7 +216,17 @@ export function WorkflowToolbar({
       </span>
 
       {/* Add node dropdown */}
-      <div ref={addBtnRef} style={{ position: "relative", flexShrink: 0 }}>
+      <div style={{ position: "relative", flexShrink: 0 }}>
+        {addMenuOpen && (
+          <div
+            onClick={() => setAddMenuOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 49,
+            }}
+          />
+        )}
         <button
           onClick={() => setAddMenuOpen((o) => !o)}
           style={{

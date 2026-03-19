@@ -16,6 +16,8 @@ import {
   MetricsIcon,
   QuestionsIcon,
   ClientsIcon,
+  DocsIcon,
+  RequirementsIcon,
   CollapseIcon,
   SettingsIcon,
 } from "@/components/icons";
@@ -39,9 +41,11 @@ const NAV_ITEMS: NavGroup[] = [
     group: "PROJECT",
     items: [
       { label: "Overview",  Icon: OverviewIcon,   href: "/project/overview" },
-      { label: "Metrics",   Icon: MetricsIcon,    href: "/project/metrics" },
-      { label: "Workflows", Icon: WorkflowsIcon,  href: "/workflows" },
+      { label: "Metrics",       Icon: MetricsIcon,       href: "/project/metrics" },
+      { label: "Requirements",  Icon: RequirementsIcon,  href: "/requirements" },
+      { label: "Workflows",     Icon: WorkflowsIcon,     href: "/workflows" },
       { label: "Questions", Icon: QuestionsIcon,  href: "/questions" },
+      { label: "Docs",      Icon: DocsIcon,       href: "/docs" },
     ],
   },
   {
@@ -103,51 +107,74 @@ export function Sidebar({ collapsed, onToggle, activePath }: Props) {
           height: 56,
           padding: collapsed ? "0 10px" : "0 12px",
           borderBottom: `1px solid ${T.navBorder}`,
+          justifyContent: collapsed ? "center" : undefined,
         }}
       >
-        {/* Project avatar */}
-        <span
-          className="flex shrink-0 items-center justify-center rounded-md"
-          style={{
-            width: 32,
-            height: 32,
-            background: "linear-gradient(135deg, #579DFF 0%, #6554C0 100%)",
-            fontSize: 13,
-            fontWeight: 700,
-            color: "#fff",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {project.name.charAt(0)}
-        </span>
-        {!collapsed && (
-          <div className="min-w-0 flex-1">
-            <div className="truncate" style={{ fontSize: 14, fontWeight: 600, color: T.navTextBright, lineHeight: "18px" }}>
-              {project.name}
+        {collapsed ? (
+          /* Collapsed: only show toggle button centered */
+          <button
+            onClick={onToggle}
+            className="flex shrink-0 items-center justify-center rounded cursor-pointer"
+            style={{
+              width: 28,
+              height: 28,
+              color: T.navText,
+              transition: "background 120ms, color 120ms",
+              border: "none",
+              background: "transparent",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = T.navHover; e.currentTarget.style.color = T.navTextBright; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = T.navText; }}
+            title="Sidebar aufklappen"
+            aria-label="Sidebar aufklappen"
+          >
+            <CollapseIcon collapsed={collapsed} />
+          </button>
+        ) : (
+          /* Expanded: project avatar + name + toggle button */
+          <>
+            <span
+              className="flex shrink-0 items-center justify-center rounded-md"
+              style={{
+                width: 32,
+                height: 32,
+                background: "linear-gradient(135deg, #579DFF 0%, #6554C0 100%)",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#fff",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              {project.name.charAt(0)}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="truncate" style={{ fontSize: 14, fontWeight: 600, color: T.navTextBright, lineHeight: "18px" }}>
+                {project.name}
+              </div>
+              <div className="truncate" style={{ fontSize: 11, color: T.navTextMuted, lineHeight: "14px" }}>
+                {project.type}
+              </div>
             </div>
-            <div className="truncate" style={{ fontSize: 11, color: T.navTextMuted, lineHeight: "14px" }}>
-              {project.type}
-            </div>
-          </div>
+            <button
+              onClick={onToggle}
+              className="flex shrink-0 items-center justify-center rounded cursor-pointer"
+              style={{
+                width: 28,
+                height: 28,
+                color: T.navText,
+                transition: "background 120ms, color 120ms",
+                border: "none",
+                background: "transparent",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = T.navHover; e.currentTarget.style.color = T.navTextBright; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = T.navText; }}
+              title="Sidebar zuklappen"
+              aria-label="Sidebar zuklappen"
+            >
+              <CollapseIcon collapsed={collapsed} />
+            </button>
+          </>
         )}
-        <button
-          onClick={onToggle}
-          className="flex shrink-0 items-center justify-center rounded cursor-pointer"
-          style={{
-            width: 28,
-            height: 28,
-            color: T.navText,
-            transition: "background 120ms, color 120ms",
-            border: "none",
-            background: "transparent",
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = T.navHover; e.currentTarget.style.color = T.navTextBright; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = T.navText; }}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          <CollapseIcon collapsed={collapsed} />
-        </button>
       </div>
 
       {/* Navigation */}
