@@ -11,6 +11,7 @@ import {
   CodeIcon,
   RocketIcon,
   WorkflowsIcon,
+  TeamIcon,
   CollapseIcon,
   SettingsIcon,
 } from "@/components/icons";
@@ -34,6 +35,12 @@ const NAV_ITEMS: NavGroup[] = [
     group: "PROJECT",
     items: [
       { label: "Workflows", Icon: WorkflowsIcon, href: "/workflows" },
+    ],
+  },
+  {
+    group: "TEAM",
+    items: [
+      { label: "Team", Icon: TeamIcon, href: "/team" },
     ],
   },
   {

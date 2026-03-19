@@ -62,3 +62,14 @@ export function ListIcon() {
     </svg>
   );
 }
+
+export function TeamIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="7" r="3" />
+      <circle cx="17" cy="9" r="2.5" />
+      <path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6" />
+      <path d="M17 14c2.2.5 4 2.2 4 4.5" />
+    </svg>
+  );
+}

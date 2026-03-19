@@ -9,6 +9,7 @@ export {
   RocketIcon,
   ListIcon,
   WorkflowsIcon,
+  TeamIcon,
 } from "./NavIcons";
 export {
   ChevronIcon,
