@@ -24,7 +24,7 @@ import { WorkflowToolbar, type AddNodeType } from "./WorkflowToolbar";
 import { JsonPanel } from "./JsonPanel";
 import { NodeEditPanel } from "./NodeEditPanel";
 import type { Workflow, WorkflowNode, WorkflowScenario } from "./types";
-import { updateWorkflowScenarios } from "./data/workflowsRegistry";
+import { saveScenarios } from "@/lib/supabase/workflows";
 
 interface Props {
   workflow: Workflow;
@@ -133,7 +133,7 @@ export function WorkflowCanvas({ workflow, initialScenarioId }: Props) {
     };
     const updated = [...scenarios, newScenario];
     setScenarios(updated);
-    updateWorkflowScenarios(workflow.id, updated);
+    saveScenarios(workflow.id, updated).catch(console.error);
     setActiveScenario(newScenario);
     setScenarioModalOpen(false);
   }, [newScenarioLabel, newScenarioColor, scenarios, workflow.id]);

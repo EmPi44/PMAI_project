@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getWorkflow } from "@/components/workflows/data/workflowsRegistry";
+import { getWorkflow } from "@/lib/supabase/workflows";
 import { WorkflowCanvas } from "@/components/workflows/WorkflowCanvas";
 
 interface Props {
@@ -11,7 +11,7 @@ export default async function WorkflowDetailPage({ params, searchParams }: Props
   const { id } = await params;
   const { scenario } = await searchParams;
 
-  const workflow = getWorkflow(id);
+  const workflow = await getWorkflow(id);
   if (!workflow) notFound();
 
   return <WorkflowCanvas workflow={workflow} initialScenarioId={scenario} />;

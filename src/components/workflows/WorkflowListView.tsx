@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { T } from "@/lib/tokens";
 import type { Workflow } from "./types";
-import { addWorkflow } from "./data/workflowsRegistry";
+import { createWorkflow } from "@/lib/supabase/workflows";
 
 interface Props {
   workflows: Workflow[];
@@ -254,10 +254,10 @@ export function WorkflowListView({ workflows: initial }: Props) {
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
 
-  function handleCreate() {
+  async function handleCreate() {
     const name = newName.trim();
     if (!name) return;
-    const id = `workflow-${Date.now()}`;
+    const id = await createWorkflow(name, newDesc.trim());
     const workflow: Workflow = {
       id,
       name,
@@ -268,7 +268,6 @@ export function WorkflowListView({ workflows: initial }: Props) {
       edges: [],
       scenarios: [],
     };
-    addWorkflow(workflow);
     setWorkflows((prev) => [...prev, workflow]);
     setCreateModalOpen(false);
     setNewName("");
