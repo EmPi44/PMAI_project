@@ -13,6 +13,7 @@ export {
   OverviewIcon,
   MetricsIcon,
   QuestionsIcon,
+  ClientsIcon,
 } from "./NavIcons";
 export {
   ChevronIcon,

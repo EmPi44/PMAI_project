@@ -15,6 +15,7 @@ import {
   OverviewIcon,
   MetricsIcon,
   QuestionsIcon,
+  ClientsIcon,
   CollapseIcon,
   SettingsIcon,
 } from "@/components/icons";
@@ -46,7 +47,8 @@ const NAV_ITEMS: NavGroup[] = [
   {
     group: "TEAM",
     items: [
-      { label: "Team", Icon: TeamIcon, href: "/team" },
+      { label: "Team",    Icon: TeamIcon,    href: "/team" },
+      { label: "Clients", Icon: ClientsIcon, href: "/clients" },
     ],
   },
   {

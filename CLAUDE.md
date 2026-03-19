@@ -100,6 +100,11 @@ Full-stack app with Next.js frontend, Python backend, and Supabase for database,
 - Supabase DB functions: manual verification against dev DB
 - Never mark a feature done without running the relevant tests
 
+## Supabase MCP
+- The Supabase MCP server for this project is named **`PMAI_supabase`**
+- Always use this MCP server (not any other Supabase MCP) for all DB operations, migrations, queries, and Supabase management tasks on this project
+- Tool prefix: `mcp__PMAI_supabase__<tool>` (e.g., `mcp__PMAI_supabase__execute_sql`, `mcp__PMAI_supabase__apply_migration`)
+
 ## Workflow
 - For research tasks, spawn parallel subagents instead of doing sequentially
 - When investigating a bug, use a subagent to explore the codebase while keeping main context clean
