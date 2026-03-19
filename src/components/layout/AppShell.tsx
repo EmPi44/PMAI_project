@@ -30,7 +30,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />
-        {children}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -1,1 +1,1 @@
-export type { Project, ProjectCharter, Objective, Milestone } from "./project";
+export type { Project, ProjectCharter, Objective, Milestone, Stakeholder, StakeholderType, InfluenceLevel } from "./project";

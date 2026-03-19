@@ -14,6 +14,7 @@ import {
   TeamIcon,
   OverviewIcon,
   MetricsIcon,
+  QuestionsIcon,
   CollapseIcon,
   SettingsIcon,
 } from "@/components/icons";
@@ -36,9 +37,10 @@ const NAV_ITEMS: NavGroup[] = [
   {
     group: "PROJECT",
     items: [
-      { label: "Overview",  Icon: OverviewIcon,  href: "/project/overview" },
-      { label: "Metrics",   Icon: MetricsIcon,   href: "/project/metrics" },
-      { label: "Workflows", Icon: WorkflowsIcon, href: "/workflows" },
+      { label: "Overview",  Icon: OverviewIcon,   href: "/project/overview" },
+      { label: "Metrics",   Icon: MetricsIcon,    href: "/project/metrics" },
+      { label: "Workflows", Icon: WorkflowsIcon,  href: "/workflows" },
+      { label: "Questions", Icon: QuestionsIcon,  href: "/questions" },
     ],
   },
   {

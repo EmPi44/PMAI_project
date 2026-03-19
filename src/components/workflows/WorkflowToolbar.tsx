@@ -17,6 +17,7 @@ interface Props {
   activeScenario: WorkflowScenario | null;
   onScenarioSelect: (s: WorkflowScenario) => void;
   onAddNode: (spec: AddNodeType) => void;
+  onAddScenario: () => void;
   onAutoLayout: () => void;
   onToggleJson: () => void;
   jsonPanelOpen: boolean;
@@ -87,6 +88,7 @@ export function WorkflowToolbar({
   activeScenario,
   onScenarioSelect,
   onAddNode,
+  onAddScenario,
   onAutoLayout,
   onToggleJson,
   jsonPanelOpen,
@@ -276,6 +278,31 @@ export function WorkflowToolbar({
           ✕
         </button>
       )}
+
+      {/* Add Scenario button */}
+      <button
+        onClick={onAddScenario}
+        title="New scenario"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+          padding: "4px 9px",
+          borderRadius: 4,
+          border: `1px dashed ${T.border}`,
+          background: "transparent",
+          color: T.textSubtlest,
+          fontSize: 11,
+          fontWeight: 500,
+          cursor: "pointer",
+          transition: "all 150ms ease",
+          flexShrink: 0,
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.brandBold; e.currentTarget.style.color = T.brandBold; e.currentTarget.style.background = T.brandSubtle; }}
+        onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.textSubtlest; e.currentTarget.style.background = "transparent"; }}
+      >
+        + Scenario
+      </button>
 
       {/* Spacer */}
       <div style={{ flex: 1 }} />

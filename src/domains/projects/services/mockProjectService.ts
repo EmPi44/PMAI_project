@@ -9,6 +9,11 @@ const PROJECT: Project = {
       "Build the most intelligent payment infrastructure platform that empowers businesses to process, analyze, and optimize every transaction with AI-driven precision.",
     problemStatement:
       "Businesses struggle with fragmented payment systems that lack real-time insights, leading to revenue loss, high failure rates, and poor developer experience when integrating payment flows.",
+    projectType: "migration",
+    currentState:
+      "Using Stripe v1 API with custom middleware. Reconciliation is handled manually via spreadsheets. Payment failures (4.2%) traced to outdated webhook handling and lack of retry logic. No real-time visibility for merchants or the finance team.",
+    targetUsers:
+      "Merchants integrating payment flows into their storefronts, finance teams monitoring transaction health and reconciliation, and developers building on top of the payment API.",
     lead: "Sofia Chen",
     startDate: "Jan 6, 2025",
     targetDate: "Jun 30, 2025",
@@ -37,6 +42,14 @@ const PROJECT: Project = {
       { id: "ms-2", name: "Core Payment Flows", date: "Mar 14, 2025", status: "in-progress" },
       { id: "ms-3", name: "Analytics & Reporting", date: "Apr 25, 2025", status: "upcoming" },
       { id: "ms-4", name: "Beta Launch & QA", date: "Jun 13, 2025", status: "upcoming" },
+    ],
+    stakeholders: [
+      { id: "sh-1", name: "Sofia Chen",    role: "Project Lead",        type: "internal", influence: "high"   },
+      { id: "sh-2", name: "Marcus Webb",   role: "Engineering Manager", type: "internal", influence: "high"   },
+      { id: "sh-3", name: "David Kim",     role: "Head of Finance",     type: "sponsor",  influence: "high"   },
+      { id: "sh-4", name: "Priya Nair",    role: "Product Owner",       type: "internal", influence: "high"   },
+      { id: "sh-5", name: "Sarah Torres",  role: "Lead Developer",      type: "internal", influence: "medium" },
+      { id: "sh-6", name: "Alex Müller",   role: "QA Lead",             type: "internal", influence: "medium" },
     ],
   },
 };

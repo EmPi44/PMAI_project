@@ -1,4 +1,4 @@
-import type { Workflow } from "../types";
+import type { Workflow, WorkflowScenario } from "../types";
 import { initialNodes, initialEdges, scenarios } from "./hrApplicationFlow";
 
 export const workflows: Workflow[] = [
@@ -26,4 +26,13 @@ export const workflows: Workflow[] = [
 
 export function getWorkflow(id: string): Workflow | undefined {
   return workflows.find((w) => w.id === id);
+}
+
+export function addWorkflow(workflow: Workflow): void {
+  workflows.push(workflow);
+}
+
+export function updateWorkflowScenarios(id: string, newScenarios: WorkflowScenario[]): void {
+  const w = workflows.find((wf) => wf.id === id);
+  if (w) w.scenarios = newScenarios;
 }

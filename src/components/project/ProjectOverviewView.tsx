@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { T, FONT_STACK } from "@/lib/tokens";
 import { getProjectSync } from "@/domains/projects/services";
-import type { ProjectCharter, Objective, Milestone } from "@/domains/projects/types";
+import type { ProjectCharter, Objective, Milestone, Stakeholder, StakeholderType, InfluenceLevel } from "@/domains/projects/types";
 
 // ─── Inline edit helpers ────────────────────────────────────────────────────
 
@@ -669,6 +669,194 @@ function MilestoneRow({
   );
 }
 
+// ─── Project type selector ───────────────────────────────────────────────────
+
+type ProjectType = "greenfield" | "migration" | "enhancement";
+
+const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
+  greenfield:  "Greenfield",
+  migration:   "Migration",
+  enhancement: "Enhancement",
+};
+
+function ProjectTypeSelector({
+  value,
+  onChange,
+}: {
+  value: ProjectType;
+  onChange: (v: ProjectType) => void;
+}) {
+  const types: ProjectType[] = ["greenfield", "migration", "enhancement"];
+  return (
+    <div style={{ display: "flex", borderRadius: 4, overflow: "hidden", border: `1px solid ${T.border}`, width: "fit-content" }}>
+      {types.map((type, i) => (
+        <button
+          key={type}
+          onClick={() => onChange(type)}
+          style={{
+            padding: "4px 14px",
+            fontSize: 12,
+            fontWeight: value === type ? 600 : 400,
+            fontFamily: FONT_STACK,
+            background: value === type ? T.brandBold : T.surface,
+            color: value === type ? "#fff" : T.textSubtle,
+            border: "none",
+            borderRight: i < types.length - 1 ? `1px solid ${T.border}` : "none",
+            cursor: "pointer",
+            transition: "background 150ms, color 150ms",
+          }}
+        >
+          {PROJECT_TYPE_LABELS[type]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─── Stakeholder card ─────────────────────────────────────────────────────────
+
+const AVATAR_COLORS = ["#0C66E4", "#6554C0", "#00875A", "#E56910", "#AE2E24", "#0055CC"];
+
+const STAKEHOLDER_TYPES: StakeholderType[] = ["internal", "external", "sponsor", "user"];
+const TYPE_STYLE: Record<StakeholderType, { bg: string; text: string; label: string }> = {
+  internal: { bg: T.bgInfoSubtle,    text: T.textInfo,    label: "Internal" },
+  external: { bg: "#EFE8FF",         text: "#5E4DB2",     label: "External" },
+  sponsor:  { bg: T.bgWarningSubtle, text: T.textWarning, label: "Sponsor"  },
+  user:     { bg: T.bgSuccessSubtle, text: T.textSuccess, label: "User"     },
+};
+
+const INFLUENCE_LEVELS: InfluenceLevel[] = ["high", "medium", "low"];
+const INFLUENCE_STYLE: Record<InfluenceLevel, { color: string; label: string }> = {
+  high:   { color: T.textDanger,   label: "High"   },
+  medium: { color: T.textWarning,  label: "Medium" },
+  low:    { color: T.textSubtlest, label: "Low"    },
+};
+
+function StakeholderCard({
+  stakeholder,
+  colorIndex,
+  onChange,
+  onDelete,
+}: {
+  stakeholder: Stakeholder;
+  colorIndex: number;
+  onChange: (s: Stakeholder) => void;
+  onDelete: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  const initials = stakeholder.name
+    .split(" ")
+    .slice(0, 2)
+    .map((w: string) => w[0])
+    .join("")
+    .toUpperCase();
+  const avatarColor = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
+
+  function cycleType() {
+    const idx = STAKEHOLDER_TYPES.indexOf(stakeholder.type);
+    onChange({ ...stakeholder, type: STAKEHOLDER_TYPES[(idx + 1) % STAKEHOLDER_TYPES.length] });
+  }
+
+  function cycleInfluence() {
+    const idx = INFLUENCE_LEVELS.indexOf(stakeholder.influence);
+    onChange({ ...stakeholder, influence: INFLUENCE_LEVELS[(idx + 1) % INFLUENCE_LEVELS.length] });
+  }
+
+  const ts = TYPE_STYLE[stakeholder.type];
+  const inf = INFLUENCE_STYLE[stakeholder.influence];
+
+  return (
+    <div
+      style={{
+        background: T.surface,
+        border: `1px solid ${T.borderSubtle}`,
+        borderRadius: 8,
+        padding: "14px 16px",
+        position: "relative",
+        transition: "box-shadow 150ms",
+        boxShadow: hovered ? "0 2px 8px rgba(9,30,66,0.08)" : "none",
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {hovered && (
+        <button
+          onClick={onDelete}
+          style={{
+            position: "absolute", top: 8, right: 8,
+            background: "none", border: "none", cursor: "pointer",
+            color: T.textSubtlest, fontSize: 16, lineHeight: 1,
+            padding: "0 4px", borderRadius: 3, transition: "color 120ms",
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = T.textDanger; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = T.textSubtlest; }}
+          title="Remove"
+        >×</button>
+      )}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+        <div
+          style={{
+            width: 36, height: 36, borderRadius: "50%",
+            background: avatarColor,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0,
+          }}
+        >
+          {initials || "?"}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ marginBottom: 1 }}>
+            <EditableText
+              value={stakeholder.name}
+              onChange={(v) => onChange({ ...stakeholder, name: v })}
+              style={{ fontSize: 13, fontWeight: 600, color: T.text }}
+              placeholder="Name…"
+            />
+          </div>
+          <EditableText
+            value={stakeholder.role}
+            onChange={(v) => onChange({ ...stakeholder, role: v })}
+            style={{ fontSize: 12, color: T.textSubtle }}
+            placeholder="Role…"
+          />
+        </div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <button
+          onClick={cycleType}
+          title="Click to change type"
+          style={{
+            background: ts.bg, color: ts.text,
+            border: "none", borderRadius: 3,
+            padding: "2px 7px", fontSize: 11, fontWeight: 600,
+            fontFamily: FONT_STACK, letterSpacing: "0.03em",
+            cursor: "pointer", transition: "opacity 120ms",
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.75"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+        >
+          {ts.label}
+        </button>
+        <button
+          onClick={cycleInfluence}
+          title="Click to change influence"
+          style={{
+            display: "flex", alignItems: "center", gap: 4,
+            background: "none", border: "none", cursor: "pointer", padding: 0,
+            transition: "opacity 120ms",
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.65"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+        >
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: inf.color, display: "inline-block" }} />
+          <span style={{ fontSize: 11, color: inf.color, fontWeight: 500 }}>{inf.label}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main view ────────────────────────────────────────────────────────────────
 
 export function ProjectOverviewView() {
@@ -714,6 +902,25 @@ export function ProjectOverviewView() {
     setCharter((prev) => ({
       ...prev,
       milestones: [...prev.milestones, { id, name: "", date: "", status: "upcoming" }],
+    }));
+  }
+
+  function updateStakeholder(id: string, s: Stakeholder) {
+    setCharter((prev) => ({
+      ...prev,
+      stakeholders: prev.stakeholders.map((sh) => (sh.id === id ? s : sh)),
+    }));
+  }
+
+  function deleteStakeholder(id: string) {
+    setCharter((prev) => ({ ...prev, stakeholders: prev.stakeholders.filter((sh) => sh.id !== id) }));
+  }
+
+  function addStakeholder() {
+    const id = `sh-${Date.now()}`;
+    setCharter((prev) => ({
+      ...prev,
+      stakeholders: [...prev.stakeholders, { id, name: "", role: "", type: "internal", influence: "medium" }],
     }));
   }
 
@@ -836,6 +1043,38 @@ export function ProjectOverviewView() {
           />
         </Section>
 
+        {/* ── Context ── */}
+        <Section style={{ marginBottom: 16 }}>
+          <SectionTitle>Context</SectionTitle>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 11, color: T.textSubtlest, marginBottom: 6, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Project type</div>
+            <ProjectTypeSelector
+              value={charter.projectType}
+              onChange={(v) => update("projectType", v)}
+            />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 11, color: T.textSubtlest, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", marginBottom: 2 }}>Current state</div>
+              <EditableTextarea
+                value={charter.currentState}
+                onChange={(v) => update("currentState", v)}
+                placeholder="How is this problem solved today?"
+                minRows={3}
+              />
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: T.textSubtlest, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", marginBottom: 2 }}>Target users</div>
+              <EditableTextarea
+                value={charter.targetUsers}
+                onChange={(v) => update("targetUsers", v)}
+                placeholder="Who uses this, and how?"
+                minRows={3}
+              />
+            </div>
+          </div>
+        </Section>
+
         {/* ── Objectives + Milestones (two-column) ── */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
           <Section>
@@ -910,7 +1149,7 @@ export function ProjectOverviewView() {
         </div>
 
         {/* ── Scope ── */}
-        <Section>
+        <Section style={{ marginBottom: 16 }}>
           <SectionTitle>Scope</SectionTitle>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             <div>
@@ -954,6 +1193,35 @@ export function ProjectOverviewView() {
               />
             </div>
           </div>
+        </Section>
+
+        {/* ── Stakeholders ── */}
+        <Section style={{ marginTop: 0 }}>
+          <SectionTitle>Stakeholders</SectionTitle>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 4 }}>
+            {charter.stakeholders.map((sh, idx) => (
+              <StakeholderCard
+                key={sh.id}
+                stakeholder={sh}
+                colorIndex={idx}
+                onChange={(s) => updateStakeholder(sh.id, s)}
+                onDelete={() => deleteStakeholder(sh.id)}
+              />
+            ))}
+          </div>
+          <button
+            onClick={addStakeholder}
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              background: "none", border: "none", cursor: "pointer",
+              color: T.textSubtlest, fontSize: 12, fontFamily: FONT_STACK,
+              padding: "10px 0 0", transition: "color 120ms",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = T.brandText; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = T.textSubtlest; }}
+          >
+            <span style={{ fontSize: 15, lineHeight: 1 }}>+</span> Add stakeholder
+          </button>
         </Section>
 
       </div>

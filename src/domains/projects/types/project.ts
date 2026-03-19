@@ -11,9 +11,23 @@ export interface Milestone {
   status: "completed" | "in-progress" | "upcoming";
 }
 
+export type StakeholderType = "internal" | "external" | "sponsor" | "user";
+export type InfluenceLevel = "high" | "medium" | "low";
+
+export interface Stakeholder {
+  id: string;
+  name: string;
+  role: string;
+  type: StakeholderType;
+  influence: InfluenceLevel;
+}
+
 export interface ProjectCharter {
   vision: string;
   problemStatement: string;
+  projectType: "greenfield" | "migration" | "enhancement";
+  currentState: string;
+  targetUsers: string;
   lead: string;
   startDate: string;
   targetDate: string;
@@ -22,6 +36,7 @@ export interface ProjectCharter {
   inScope: string[];
   outOfScope: string[];
   milestones: Milestone[];
+  stakeholders: Stakeholder[];
 }
 
 export interface Project {

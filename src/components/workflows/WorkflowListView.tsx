@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { T } from "@/lib/tokens";
 import type { Workflow } from "./types";
+import { addWorkflow } from "./data/workflowsRegistry";
 
 interface Props {
   workflows: Workflow[];
@@ -138,31 +140,27 @@ function WorkflowRow({ workflow }: { workflow: Workflow }) {
           style={{ padding: "0 8px" }}
           onClick={(e) => e.stopPropagation()}
         >
-          {workflow.nodes.length > 0 ? (
-            <Link
-              href={`/workflows/${workflow.id}`}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                padding: "5px 12px",
-                borderRadius: 4,
-                border: `1px solid ${T.border}`,
-                background: T.surface,
-                color: T.textSubtle,
-                fontSize: 12,
-                fontWeight: 500,
-                textDecoration: "none",
-                transition: "all 150ms",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = T.brandSubtle; e.currentTarget.style.color = T.brandBold; e.currentTarget.style.borderColor = T.brandBold; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = T.surface; e.currentTarget.style.color = T.textSubtle; e.currentTarget.style.borderColor = T.border; }}
-            >
-              Open Canvas
-            </Link>
-          ) : (
-            <span style={{ fontSize: 12, color: T.textSubtlest, fontStyle: "italic" }}>No canvas yet</span>
-          )}
+          <Link
+            href={`/workflows/${workflow.id}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "5px 12px",
+              borderRadius: 4,
+              border: `1px solid ${T.border}`,
+              background: T.surface,
+              color: T.textSubtle,
+              fontSize: 12,
+              fontWeight: 500,
+              textDecoration: "none",
+              transition: "all 150ms",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = T.brandSubtle; e.currentTarget.style.color = T.brandBold; e.currentTarget.style.borderColor = T.brandBold; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = T.surface; e.currentTarget.style.color = T.textSubtle; e.currentTarget.style.borderColor = T.border; }}
+          >
+            Open Canvas
+          </Link>
         </div>
       </div>
 
@@ -249,7 +247,35 @@ function WorkflowRow({ workflow }: { workflow: Workflow }) {
   );
 }
 
-export function WorkflowListView({ workflows }: Props) {
+export function WorkflowListView({ workflows: initial }: Props) {
+  const router = useRouter();
+  const [workflows, setWorkflows] = useState<Workflow[]>(initial);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+
+  function handleCreate() {
+    const name = newName.trim();
+    if (!name) return;
+    const id = `workflow-${Date.now()}`;
+    const workflow: Workflow = {
+      id,
+      name,
+      description: newDesc.trim(),
+      status: "draft",
+      updatedAt: new Date().toISOString().split("T")[0],
+      nodes: [],
+      edges: [],
+      scenarios: [],
+    };
+    addWorkflow(workflow);
+    setWorkflows((prev) => [...prev, workflow]);
+    setCreateModalOpen(false);
+    setNewName("");
+    setNewDesc("");
+    router.push(`/workflows/${id}`);
+  }
+
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "auto", background: T.surfaceSunken }}>
       {/* Page header */}
@@ -259,14 +285,42 @@ export function WorkflowListView({ workflows }: Props) {
           background: T.surface,
           borderBottom: `1px solid ${T.border}`,
           flexShrink: 0,
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 16,
         }}
       >
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: T.text, margin: 0, lineHeight: "28px" }}>
-          Workflows
-        </h1>
-        <p style={{ fontSize: 13, color: T.textSubtle, margin: "4px 0 0" }}>
-          Design and manage end-to-end process flows for customer discussions
-        </p>
+        <div>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: T.text, margin: 0, lineHeight: "28px" }}>
+            Workflows
+          </h1>
+          <p style={{ fontSize: 13, color: T.textSubtle, margin: "4px 0 0" }}>
+            Design and manage end-to-end process flows for customer discussions
+          </p>
+        </div>
+        <button
+          onClick={() => setCreateModalOpen(true)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "7px 14px",
+            borderRadius: 4,
+            border: "none",
+            background: T.brandBold,
+            color: "#fff",
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: "pointer",
+            flexShrink: 0,
+            transition: "background 150ms",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = T.brandBoldHover; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = T.brandBold; }}
+        >
+          + New Workflow
+        </button>
       </div>
 
       {/* Table */}
@@ -311,6 +365,129 @@ export function WorkflowListView({ workflows }: Props) {
           )}
         </div>
       </div>
+
+      {/* New Workflow Modal */}
+      {createModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(9,30,66,0.54)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 200,
+          }}
+          onClick={() => setCreateModalOpen(false)}
+        >
+          <div
+            style={{
+              background: T.surface,
+              borderRadius: 8,
+              border: `1px solid ${T.border}`,
+              boxShadow: "0 8px 32px rgba(9,30,66,0.2)",
+              width: 440,
+              padding: 24,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: T.text, margin: "0 0 16px" }}>
+              New Workflow
+            </h2>
+
+            <label style={{ display: "block", marginBottom: 14 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: T.textSubtle, display: "block", marginBottom: 4, letterSpacing: "0.04em" }}>
+                NAME *
+              </span>
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && newName.trim()) handleCreate(); if (e.key === "Escape") setCreateModalOpen(false); }}
+                autoFocus
+                placeholder="e.g. Customer Onboarding"
+                style={{
+                  width: "100%",
+                  padding: "7px 10px",
+                  borderRadius: 4,
+                  border: `2px solid ${T.border}`,
+                  fontSize: 13,
+                  color: T.text,
+                  outline: "none",
+                  boxSizing: "border-box",
+                  fontFamily: "inherit",
+                  transition: "border-color 150ms",
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = T.brandBold; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = T.border; }}
+              />
+            </label>
+
+            <label style={{ display: "block", marginBottom: 20 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: T.textSubtle, display: "block", marginBottom: 4, letterSpacing: "0.04em" }}>
+                DESCRIPTION
+              </span>
+              <textarea
+                value={newDesc}
+                onChange={(e) => setNewDesc(e.target.value)}
+                rows={2}
+                placeholder="Short description of this workflow…"
+                style={{
+                  width: "100%",
+                  padding: "7px 10px",
+                  borderRadius: 4,
+                  border: `2px solid ${T.border}`,
+                  fontSize: 13,
+                  color: T.text,
+                  outline: "none",
+                  resize: "vertical",
+                  boxSizing: "border-box",
+                  fontFamily: "inherit",
+                  transition: "border-color 150ms",
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = T.brandBold; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = T.border; }}
+              />
+            </label>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+              <button
+                onClick={() => setCreateModalOpen(false)}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 4,
+                  border: `1px solid ${T.border}`,
+                  background: "transparent",
+                  color: T.textSubtle,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreate}
+                disabled={!newName.trim()}
+                style={{
+                  padding: "6px 16px",
+                  borderRadius: 4,
+                  border: "none",
+                  background: newName.trim() ? T.brandBold : T.border,
+                  color: newName.trim() ? "#fff" : T.textSubtlest,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: newName.trim() ? "pointer" : "not-allowed",
+                  fontFamily: "inherit",
+                  transition: "all 150ms",
+                }}
+              >
+                Create &amp; Open Canvas
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

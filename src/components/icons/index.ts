@@ -12,6 +12,7 @@ export {
   TeamIcon,
   OverviewIcon,
   MetricsIcon,
+  QuestionsIcon,
 } from "./NavIcons";
 export {
   ChevronIcon,
