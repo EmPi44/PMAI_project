@@ -10,6 +10,8 @@ export {
   ListIcon,
   WorkflowsIcon,
   TeamIcon,
+  OverviewIcon,
+  MetricsIcon,
 } from "./NavIcons";
 export {
   ChevronIcon,

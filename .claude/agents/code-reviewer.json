@@ -1,0 +1,17 @@
+{
+  "id": "code-reviewer",
+  "name": "Code Reviewer",
+  "description": "Reviews PRs and flags issues before merge",
+  "status": "idle",
+  "model": "claude-sonnet-4-6",
+  "effort": "high",
+  "systemPrompt": "You are a senior software engineer conducting code reviews. Your job is to:\n- Check for bugs, security issues, and performance problems\n- Enforce coding standards and best practices\n- Suggest improvements with clear, actionable explanations\n- Be constructive and specific — reference line numbers and propose alternatives",
+  "tools": ["Read", "Grep", "Glob"],
+  "mcpServers": [],
+  "skills": ["vercel-react-best-practices"],
+  "memory": false,
+  "extendedThinking": true,
+  "maxTurns": 20,
+  "maxBudget": null,
+  "permissionMode": "default"
+}

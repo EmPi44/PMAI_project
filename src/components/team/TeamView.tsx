@@ -2,22 +2,35 @@
 
 import { useState, useCallback } from "react";
 import { T } from "@/lib/tokens";
-import { INITIAL_AGENTS } from "./types";
 import type { Agent } from "./types";
 import { AgentList } from "./AgentList";
 import { AgentDetail } from "./AgentDetail";
 
-export function TeamView() {
-  const [agents, setAgents] = useState<Agent[]>(INITIAL_AGENTS);
-  const [selectedId, setSelectedId] = useState<string>(INITIAL_AGENTS[0].id);
+interface Props {
+  initialAgents: Agent[];
+}
 
-  const selectedAgent = agents.find((a) => a.id === selectedId) ?? agents[0];
+export function TeamView({ initialAgents }: Props) {
+  const [agents, setAgents] = useState<Agent[]>(initialAgents);
+  const [selectedId, setSelectedId] = useState<string>(
+    initialAgents.length > 0 ? initialAgents[0].id : ""
+  );
+
+  const selectedAgent = agents.find((a) => a.id === selectedId);
 
   const handleUpdate = useCallback((updated: Agent) => {
     setAgents((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
   }, []);
 
-  const handleNew = useCallback(() => {
+  const handleSave = useCallback(async (agent: Agent) => {
+    await fetch("/api/agents", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(agent),
+    });
+  }, []);
+
+  const handleNew = useCallback(async () => {
     const id = `agent-${Date.now()}`;
     const newAgent: Agent = {
       id,
@@ -36,16 +49,24 @@ export function TeamView() {
       maxBudget: null,
       permissionMode: "default",
     };
+    await fetch("/api/agents", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newAgent),
+    });
     setAgents((prev) => [...prev, newAgent]);
     setSelectedId(id);
   }, []);
 
   const handleDelete = useCallback(
-    (id: string) => {
+    async (id: string) => {
+      await fetch(`/api/agents/${id}`, { method: "DELETE" });
       setAgents((prev) => {
         const next = prev.filter((a) => a.id !== id);
         if (selectedId === id && next.length > 0) {
           setSelectedId(next[0].id);
+        } else if (next.length === 0) {
+          setSelectedId("");
         }
         return next;
       });
@@ -59,11 +80,13 @@ export function TeamView() {
         className="flex flex-1 flex-col items-center justify-center"
         style={{ background: T.surfaceSunken }}
       >
-        <div style={{ textAlign: "center", color: T.textSubtlest, marginBottom: 16 }}>
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
           <p style={{ fontSize: 15, fontWeight: 600, color: T.textSubtle, marginBottom: 6 }}>
             No agents yet
           </p>
-          <p style={{ fontSize: 13 }}>Create your first AI agent to get started.</p>
+          <p style={{ fontSize: 13, color: T.textSubtlest }}>
+            Create your first AI agent to get started.
+          </p>
         </div>
         <button
           onClick={handleNew}
@@ -92,12 +115,15 @@ export function TeamView() {
         onSelect={setSelectedId}
         onNew={handleNew}
       />
-      <AgentDetail
-        key={selectedAgent.id}
-        agent={selectedAgent}
-        onChange={handleUpdate}
-        onDelete={() => handleDelete(selectedAgent.id)}
-      />
+      {selectedAgent && (
+        <AgentDetail
+          key={selectedAgent.id}
+          agent={selectedAgent}
+          onChange={handleUpdate}
+          onSave={handleSave}
+          onDelete={() => handleDelete(selectedAgent.id)}
+        />
+      )}
     </div>
   );
 }

@@ -1,17 +1,84 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { T } from "@/lib/tokens";
-import type { WorkflowScenario } from "./types";
+import type { WorkflowScenario, ActorType } from "./types";
+
+export type AddNodeType =
+  | { type: "start" }
+  | { type: "end" }
+  | { type: "activity"; actor: ActorType }
+  | { type: "decision" };
 
 interface Props {
   workflowName: string;
   scenarios: WorkflowScenario[];
   activeScenario: WorkflowScenario | null;
   onScenarioSelect: (s: WorkflowScenario) => void;
+  onAddNode: (spec: AddNodeType) => void;
   onAutoLayout: () => void;
   onToggleJson: () => void;
   jsonPanelOpen: boolean;
+}
+
+const ADD_OPTIONS: { label: string; icon: string; spec: AddNodeType; color: string }[] = [
+  { label: "Start",             icon: "▶", spec: { type: "start" },                          color: "#1F845A" },
+  { label: "End",               icon: "■", spec: { type: "end" },                            color: "#C9372C" },
+  { label: "Activity — Human",  icon: "👤", spec: { type: "activity", actor: "human" },       color: "#0C66E4" },
+  { label: "Activity — Auto",   icon: "⚡", spec: { type: "activity", actor: "automated" },   color: "#6554C0" },
+  { label: "Activity — System", icon: "⚙",  spec: { type: "activity", actor: "system" },      color: "#44546F" },
+  { label: "Decision",          icon: "◆", spec: { type: "decision" },                       color: "#CF9F02" },
+];
+
+function ToolbarBtn({
+  onClick,
+  active,
+  activeColor,
+  children,
+  title,
+}: {
+  onClick: () => void;
+  active?: boolean;
+  activeColor?: string;
+  children: React.ReactNode;
+  title?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 5,
+        padding: "5px 11px",
+        borderRadius: 4,
+        border: `1px solid ${active && activeColor ? activeColor : T.border}`,
+        background: active && activeColor ? `${activeColor}15` : "transparent",
+        color: active && activeColor ? activeColor : T.textSubtle,
+        fontSize: 12,
+        fontWeight: active ? 600 : 500,
+        cursor: "pointer",
+        transition: "all 150ms ease",
+        whiteSpace: "nowrap",
+      }}
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = T.surfaceHovered;
+          e.currentTarget.style.color = T.text;
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = active && activeColor ? `${activeColor}15` : "transparent";
+          e.currentTarget.style.color = active && activeColor ? activeColor : T.textSubtle;
+        }
+      }}
+    >
+      {children}
+    </button>
+  );
 }
 
 export function WorkflowToolbar({
@@ -19,21 +86,38 @@ export function WorkflowToolbar({
   scenarios,
   activeScenario,
   onScenarioSelect,
+  onAddNode,
   onAutoLayout,
   onToggleJson,
   jsonPanelOpen,
 }: Props) {
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const addBtnRef = useRef<HTMLDivElement>(null);
+
+  // Close add menu on outside click
+  useEffect(() => {
+    if (!addMenuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (addBtnRef.current && !addBtnRef.current.contains(e.target as Node)) {
+        setAddMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [addMenuOpen]);
+
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 8,
-        padding: "0 16px",
+        gap: 6,
+        padding: "0 14px",
         height: 48,
         background: T.surface,
         borderBottom: `1px solid ${T.border}`,
         flexShrink: 0,
+        overflow: "hidden",
       }}
     >
       {/* Back link */}
@@ -49,7 +133,7 @@ export function WorkflowToolbar({
           padding: "4px 8px",
           borderRadius: 4,
           transition: "all 150ms",
-          marginRight: 4,
+          flexShrink: 0,
         }}
         onMouseEnter={(e) => { e.currentTarget.style.color = T.text; e.currentTarget.style.background = T.surfaceHovered; }}
         onMouseLeave={(e) => { e.currentTarget.style.color = T.textSubtle; e.currentTarget.style.background = "transparent"; }}
@@ -57,19 +141,101 @@ export function WorkflowToolbar({
         ← Workflows
       </Link>
 
-      <div style={{ width: 1, height: 20, background: T.border }} />
+      <div style={{ width: 1, height: 20, background: T.border, flexShrink: 0 }} />
 
       {/* Title */}
-      <span style={{ fontSize: 13, fontWeight: 600, color: T.text, marginRight: 8, marginLeft: 8 }}>
+      <span style={{ fontSize: 13, fontWeight: 600, color: T.text, marginLeft: 2, marginRight: 6, flexShrink: 0 }}>
         {workflowName}
       </span>
 
-      <div style={{ width: 1, height: 20, background: T.border, marginRight: 4 }} />
+      {/* Add node dropdown */}
+      <div ref={addBtnRef} style={{ position: "relative", flexShrink: 0 }}>
+        <button
+          onClick={() => setAddMenuOpen((o) => !o)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 5,
+            padding: "5px 11px",
+            borderRadius: 4,
+            border: `1px solid ${addMenuOpen ? T.brandBold : T.border}`,
+            background: addMenuOpen ? T.brandSubtle : T.brandBold,
+            color: addMenuOpen ? T.brandBold : "#fff",
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 150ms ease",
+          }}
+        >
+          + Add
+        </button>
+
+        {addMenuOpen && (
+          <div
+            style={{
+              position: "absolute",
+              top: "calc(100% + 6px)",
+              left: 0,
+              zIndex: 50,
+              background: T.surface,
+              border: `1px solid ${T.border}`,
+              borderRadius: 6,
+              boxShadow: "0 4px 16px rgba(9,30,66,0.18)",
+              minWidth: 200,
+              overflow: "hidden",
+            }}
+          >
+            {ADD_OPTIONS.map((opt) => (
+              <button
+                key={opt.label}
+                onClick={() => { onAddNode(opt.spec); setAddMenuOpen(false); }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  width: "100%",
+                  padding: "9px 14px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  color: T.text,
+                  textAlign: "left",
+                  transition: "background 100ms",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = T.surfaceHovered; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
+              >
+                <span
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 4,
+                    background: `${opt.color}20`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 12,
+                    flexShrink: 0,
+                  }}
+                >
+                  {opt.icon}
+                </span>
+                <span>{opt.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={{ width: 1, height: 20, background: T.border, flexShrink: 0, marginLeft: 2 }} />
 
       {/* Scenario label */}
-      <span style={{ fontSize: 11, fontWeight: 600, color: T.textSubtlest, letterSpacing: "0.05em", marginRight: 4 }}>
-        SCENARIO:
-      </span>
+      {scenarios.length > 0 && (
+        <span style={{ fontSize: 11, fontWeight: 600, color: T.textSubtlest, letterSpacing: "0.05em", flexShrink: 0 }}>
+          SCENARIO:
+        </span>
+      )}
 
       {/* Scenario buttons */}
       {scenarios.map((s) => {
@@ -91,29 +257,12 @@ export function WorkflowToolbar({
               fontWeight: isActive ? 600 : 400,
               cursor: "pointer",
               transition: "all 150ms ease",
+              flexShrink: 0,
             }}
-            onMouseEnter={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.background = T.surfaceHovered;
-                e.currentTarget.style.color = T.text;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = T.textSubtle;
-              }
-            }}
+            onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.background = T.surfaceHovered; e.currentTarget.style.color = T.text; } }}
+            onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = T.textSubtle; } }}
           >
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: s.color,
-                flexShrink: 0,
-              }}
-            />
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
             {s.label}
           </button>
         );
@@ -122,80 +271,22 @@ export function WorkflowToolbar({
       {activeScenario && (
         <button
           onClick={() => onScenarioSelect(activeScenario)}
-          style={{
-            padding: "4px 8px",
-            borderRadius: 4,
-            border: "none",
-            background: "transparent",
-            color: T.textSubtlest,
-            fontSize: 11,
-            cursor: "pointer",
-          }}
-          title="Clear scenario"
+          style={{ padding: "4px 6px", borderRadius: 4, border: "none", background: "transparent", color: T.textSubtlest, fontSize: 11, cursor: "pointer", flexShrink: 0 }}
         >
-          ✕ Clear
+          ✕
         </button>
       )}
 
       {/* Spacer */}
       <div style={{ flex: 1 }} />
 
-      {/* Auto-layout */}
-      <button
-        onClick={onAutoLayout}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "5px 12px",
-          borderRadius: 4,
-          border: `1px solid ${T.border}`,
-          background: "transparent",
-          color: T.textSubtle,
-          fontSize: 12,
-          fontWeight: 500,
-          cursor: "pointer",
-          transition: "all 150ms ease",
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = T.surfaceHovered; e.currentTarget.style.color = T.text; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = T.textSubtle; }}
-        title="Auto-arrange nodes"
-      >
+      <ToolbarBtn onClick={onAutoLayout} title="Auto-arrange nodes">
         ⊞ Auto Layout
-      </button>
+      </ToolbarBtn>
 
-      {/* JSON toggle */}
-      <button
-        onClick={onToggleJson}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "5px 12px",
-          borderRadius: 4,
-          border: `1px solid ${jsonPanelOpen ? T.brandBold : T.border}`,
-          background: jsonPanelOpen ? T.brandSubtle : "transparent",
-          color: jsonPanelOpen ? T.brandBold : T.textSubtle,
-          fontSize: 12,
-          fontWeight: 500,
-          cursor: "pointer",
-          transition: "all 150ms ease",
-        }}
-        onMouseEnter={(e) => {
-          if (!jsonPanelOpen) {
-            e.currentTarget.style.background = T.surfaceHovered;
-            e.currentTarget.style.color = T.text;
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!jsonPanelOpen) {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = T.textSubtle;
-          }
-        }}
-      >
+      <ToolbarBtn onClick={onToggleJson} active={jsonPanelOpen} activeColor={T.brandBold}>
         {"{ }"} JSON
-      </button>
+      </ToolbarBtn>
     </div>
   );
 }

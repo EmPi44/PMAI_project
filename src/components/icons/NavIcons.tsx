@@ -63,6 +63,26 @@ export function ListIcon() {
   );
 }
 
+export function OverviewIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="3" width="16" height="18" rx="2" />
+      <path d="M8 8h8M8 12h8M8 16h5" />
+    </svg>
+  );
+}
+
+export function MetricsIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 20h18" />
+      <rect x="5" y="12" width="3" height="8" rx="1" />
+      <rect x="10.5" y="7" width="3" height="13" rx="1" />
+      <rect x="16" y="3" width="3" height="17" rx="1" />
+    </svg>
+  );
+}
+
 export function TeamIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

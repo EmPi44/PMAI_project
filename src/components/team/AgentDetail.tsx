@@ -132,16 +132,21 @@ const numberInputStyle: React.CSSProperties = {
 interface Props {
   agent: Agent;
   onChange: (agent: Agent) => void;
+  onSave: (agent: Agent) => Promise<void>;
   onDelete: () => void;
 }
 
-export function AgentDetail({ agent, onChange, onDelete }: Props) {
+export function AgentDetail({ agent, onChange, onSave, onDelete }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const patch = (changes: Partial<Agent>) => onChange({ ...agent, ...changes });
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true);
+    await onSave(agent);
+    setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
@@ -657,6 +662,7 @@ export function AgentDetail({ agent, onChange, onDelete }: Props) {
 
         <button
           onClick={handleSave}
+          disabled={saving}
           style={{
             padding: "6px 14px",
             borderRadius: 4,
@@ -665,12 +671,13 @@ export function AgentDetail({ agent, onChange, onDelete }: Props) {
             color: saved ? T.textSuccess : T.textSubtle,
             fontSize: 13,
             fontWeight: 500,
-            cursor: "pointer",
+            cursor: saving ? "not-allowed" : "pointer",
             transition: "all 200ms",
             minWidth: 60,
+            opacity: saving ? 0.6 : 1,
           }}
         >
-          {saved ? "Saved ✓" : "Save"}
+          {saving ? "Saving…" : saved ? "Saved ✓" : "Save"}
         </button>
 
         <div style={{ flex: 1 }} />

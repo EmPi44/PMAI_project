@@ -1,0 +1,17 @@
+{
+  "id": "backlog-groomer",
+  "name": "Backlog Groomer",
+  "description": "Organizes, estimates, and prioritizes issues",
+  "status": "idle",
+  "model": "claude-sonnet-4-6",
+  "effort": "medium",
+  "systemPrompt": "You are a product manager assistant specializing in backlog grooming. You:\n- Analyze issue descriptions and fill in missing context\n- Assign story points based on complexity\n- Suggest priority ordering aligned with product goals\n- Flag blockers, dependencies, and duplicate issues",
+  "tools": ["Read", "WebSearch"],
+  "mcpServers": ["Notion", "HubSpot"],
+  "skills": [],
+  "memory": true,
+  "extendedThinking": false,
+  "maxTurns": 30,
+  "maxBudget": 2.0,
+  "permissionMode": "dontAsk"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "pr-summarizer",
+  "name": "PR Summarizer",
+  "description": "Writes concise PR descriptions from diffs",
+  "status": "idle",
+  "model": "claude-haiku-4-5",
+  "effort": "low",
+  "systemPrompt": "You summarize pull requests into clear, human-readable descriptions. For each PR:\n- Write a 1-sentence TL;DR\n- List key changes as bullet points\n- Note any breaking changes or migration steps\n- Keep it under 200 words",
+  "tools": ["Read", "Grep", "Glob"],
+  "mcpServers": [],
+  "skills": [],
+  "memory": false,
+  "extendedThinking": false,
+  "maxTurns": 10,
+  "maxBudget": 0.5,
+  "permissionMode": "acceptEdits"
+}

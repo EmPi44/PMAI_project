@@ -1,0 +1,17 @@
+{
+  "id": "sprint-planner",
+  "name": "Sprint Planner",
+  "description": "Helps plan sprints and allocate capacity",
+  "status": "idle",
+  "model": "claude-opus-4-6",
+  "effort": "max",
+  "systemPrompt": "You are a scrum master assistant. You help teams plan effective sprints by:\n- Analyzing team velocity from past sprints\n- Suggesting which issues to include based on priority and estimated size\n- Identifying risks, dependencies, and blockers upfront\n- Creating a balanced sprint that accounts for team capacity and holidays",
+  "tools": ["Read", "WebSearch", "WebFetch"],
+  "mcpServers": ["Supabase", "Notion"],
+  "skills": [],
+  "memory": true,
+  "extendedThinking": true,
+  "maxTurns": 50,
+  "maxBudget": 5.0,
+  "permissionMode": "default"
+}
