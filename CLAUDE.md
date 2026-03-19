@@ -30,3 +30,17 @@ across all new components. Key values:
 - Surfaces: `#FFFFFF` (default), `#F7F8F9` (sunken), `#F1F2F4` (hovered)
 - Sidebar: `#0C1929` (dark nav bg), `rgba(255,255,255,0.08)` (borders)
 - Font stack: `ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, system-ui, "Helvetica Neue", sans-serif`
+
+## Frontend Engineering Standards
+
+This is a **Next.js app**. Always apply `vercel-react-best-practices` rules when writing or modifying
+React/Next.js code. Prioritize CRITICAL rules (async components, bundle optimization) over lower priority ones.
+Reference `~/.claude/skills/vercel-react-best-practices/rules/` for detailed patterns.
+
+Key principles:
+- Prefer Server Components by default; only add `"use client"` when state/interactivity is needed
+- Use Next.js App Router conventions (layouts, loading, error boundaries)
+- Optimize bundle size: dynamic imports for heavy components, avoid barrel files
+- Use `next/image` for images, `next/font` for fonts, `next/link` for navigation
+- Minimize client-side JavaScript; push logic to the server where possible
+- Always verify with `tsc --noEmit` + build after changes
