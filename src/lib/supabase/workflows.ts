@@ -228,20 +228,25 @@ export async function saveCanvas(
   nodes: WorkflowNode[],
   edges: WorkflowEdge[]
 ): Promise<void> {
-  // Soft-delete removed nodes/edges, then upsert current ones
-  await Promise.all([
+  const nodeKeys = nodes.map((n) => n.id);
+  const edgeKeys = edges.map((e) => e.id);
+
+  // Hard-delete rows that are no longer in the canvas
+  const deleteOps = [
     supabase
       .from("workflow_nodes")
-      .update({ deleted_at: new Date().toISOString() })
+      .delete()
       .eq("workflow_id", workflowId)
-      .is("deleted_at", null),
+      .not("node_key", "in", `(${nodeKeys.length > 0 ? nodeKeys.map((k) => `"${k}"`).join(",") : '""'})`),
     supabase
       .from("workflow_edges")
-      .update({ deleted_at: new Date().toISOString() })
+      .delete()
       .eq("workflow_id", workflowId)
-      .is("deleted_at", null),
-  ]);
+      .not("edge_key", "in", `(${edgeKeys.length > 0 ? edgeKeys.map((k) => `"${k}"`).join(",") : '""'})`),
+  ];
+  await Promise.all(deleteOps);
 
+  // Upsert current nodes - resolves on (workflow_id, node_key) unique constraint
   if (nodes.length > 0) {
     const nodeRows = nodes.map((n) => ({
       workflow_id: workflowId,
@@ -251,10 +256,13 @@ export async function saveCanvas(
       position_y: n.position.y,
       data: n.data,
     }));
-    const { error } = await supabase.from("workflow_nodes").insert(nodeRows);
+    const { error } = await supabase
+      .from("workflow_nodes")
+      .upsert(nodeRows, { onConflict: "workflow_id,node_key" });
     if (error) throw error;
   }
 
+  // Upsert current edges - resolves on (workflow_id, edge_key) unique constraint
   if (edges.length > 0) {
     const edgeRows = edges.map((e) => {
       const { id, source, target, label, type, style, animated, labelStyle, labelBgStyle, labelBgPadding, labelBgBorderRadius, sourceHandle, ...rest } = e as WorkflowEdge & {
@@ -271,7 +279,9 @@ export async function saveCanvas(
         data: { type, style, animated, labelStyle, labelBgStyle, labelBgPadding, labelBgBorderRadius, sourceHandle, ...rest },
       };
     });
-    const { error } = await supabase.from("workflow_edges").insert(edgeRows);
+    const { error } = await supabase
+      .from("workflow_edges")
+      .upsert(edgeRows, { onConflict: "workflow_id,edge_key" });
     if (error) throw error;
   }
 
