@@ -42,3 +42,14 @@ export interface WorkflowScenario {
 }
 
 export type WorkflowEdge = Edge;
+
+export interface Workflow {
+  id: string;
+  name: string;
+  description: string;
+  status: "active" | "draft" | "archived";
+  updatedAt: string;
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+  scenarios: WorkflowScenario[];
+}

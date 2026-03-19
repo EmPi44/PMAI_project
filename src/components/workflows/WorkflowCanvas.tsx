@@ -14,19 +14,27 @@ import {
   type Node,
   type Edge,
 } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
 
 import { nodeTypes } from "./nodes";
-import { initialNodes, initialEdges, scenarios } from "./data/hrApplicationFlow";
 import { getLayoutedElements } from "./utils/layout";
 import { WorkflowToolbar } from "./WorkflowToolbar";
 import { JsonPanel } from "./JsonPanel";
-import type { WorkflowScenario } from "./types";
+import type { Workflow, WorkflowScenario } from "./types";
 
-export function WorkflowCanvas() {
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
-  const [activeScenario, setActiveScenario] = useState<WorkflowScenario | null>(null);
+interface Props {
+  workflow: Workflow;
+  initialScenarioId?: string;
+}
+
+export function WorkflowCanvas({ workflow, initialScenarioId }: Props) {
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(workflow.nodes as Node[]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(workflow.edges as Edge[]);
+
+  const initialScenario = initialScenarioId
+    ? (workflow.scenarios.find((s) => s.id === initialScenarioId) ?? null)
+    : null;
+
+  const [activeScenario, setActiveScenario] = useState<WorkflowScenario | null>(initialScenario);
   const [jsonPanelOpen, setJsonPanelOpen] = useState(false);
 
   const onConnect = useCallback(
@@ -44,7 +52,6 @@ export function WorkflowCanvas() {
     setActiveScenario((prev) => (prev?.id === s.id ? null : s));
   }, []);
 
-  // Apply scenario highlight styles without mutating original nodes/edges
   const styledNodes = useMemo(() => {
     if (!activeScenario) return nodes;
     return nodes.map((node) => ({
@@ -76,7 +83,8 @@ export function WorkflowCanvas() {
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <WorkflowToolbar
-        scenarios={scenarios}
+        workflowName={workflow.name}
+        scenarios={workflow.scenarios}
         activeScenario={activeScenario}
         onScenarioSelect={onScenarioSelect}
         onAutoLayout={onAutoLayout}
@@ -84,7 +92,8 @@ export function WorkflowCanvas() {
         jsonPanelOpen={jsonPanelOpen}
       />
 
-      <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
+      <div style={{ position: "relative", flex: 1, minHeight: 0, display: "flex" }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex" }}>
         <ReactFlow
           nodes={styledNodes}
           edges={styledEdges}
@@ -104,12 +113,7 @@ export function WorkflowCanvas() {
           }}
           proOptions={{ hideAttribution: false }}
         >
-          <Background
-            variant={BackgroundVariant.Dots}
-            gap={20}
-            size={1}
-            color="#C1C7D0"
-          />
+          <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#C1C7D0" />
           <Controls />
           <MiniMap
             nodeStrokeWidth={2}
@@ -130,12 +134,10 @@ export function WorkflowCanvas() {
           <JsonPanel
             nodes={nodes}
             edges={edges}
-            onApply={(n, e) => {
-              setNodes(n);
-              setEdges(e);
-            }}
+            onApply={(n, e) => { setNodes(n); setEdges(e); }}
           />
         )}
+        </div>
       </div>
     </div>
   );

@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { T } from "@/lib/tokens";
 import type { WorkflowScenario } from "./types";
 
 interface Props {
+  workflowName: string;
   scenarios: WorkflowScenario[];
   activeScenario: WorkflowScenario | null;
   onScenarioSelect: (s: WorkflowScenario) => void;
@@ -13,6 +15,7 @@ interface Props {
 }
 
 export function WorkflowToolbar({
+  workflowName,
   scenarios,
   activeScenario,
   onScenarioSelect,
@@ -33,9 +36,32 @@ export function WorkflowToolbar({
         flexShrink: 0,
       }}
     >
+      {/* Back link */}
+      <Link
+        href="/workflows"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+          fontSize: 12,
+          color: T.textSubtle,
+          textDecoration: "none",
+          padding: "4px 8px",
+          borderRadius: 4,
+          transition: "all 150ms",
+          marginRight: 4,
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = T.text; e.currentTarget.style.background = T.surfaceHovered; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = T.textSubtle; e.currentTarget.style.background = "transparent"; }}
+      >
+        ← Workflows
+      </Link>
+
+      <div style={{ width: 1, height: 20, background: T.border }} />
+
       {/* Title */}
-      <span style={{ fontSize: 13, fontWeight: 600, color: T.text, marginRight: 8 }}>
-        HR Application Flow
+      <span style={{ fontSize: 13, fontWeight: 600, color: T.text, marginRight: 8, marginLeft: 8 }}>
+        {workflowName}
       </span>
 
       <div style={{ width: 1, height: 20, background: T.border, marginRight: 4 }} />
