@@ -1,5 +1,20 @@
 @AGENTS.md
 
+# What We're Building
+
+**PMAI** (Project Management AI) is an all-in-one platform for managing software projects end-to-end.
+The core idea: define AI agents that autonomously break down work into Epics → Stories → Tasks,
+then handle the full fulfillment loop — from planning to execution to delivery.
+
+Key capabilities in scope:
+- **Project management**: Jira-like backlog, sprints, issue tracking (Epic/Story/Task/Bug)
+- **AI Agents**: define agents with roles, goals, and tools; they decompose and execute work
+- **Workflow automation**: agents pick up tasks, run workflows, produce outputs
+- **Integrations**: GitHub (code), Supabase (DB/deploy), CI/CD pipelines — everything linked to one project view
+- **Single pane of glass**: one tool where the entire lifecycle of a software project lives
+
+Think: Jira + Linear + AI agent orchestration + deployment integrations, purpose-built for AI-assisted software delivery.
+
 # PMAI Project — Design System Guidelines
 
 ## Master Design System: Atlassian Design System
