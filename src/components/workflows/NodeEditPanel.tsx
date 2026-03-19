@@ -1,13 +1,15 @@
 "use client";
 
 import { T } from "@/lib/tokens";
-import type { WorkflowNode, ActorType } from "./types";
+import type { WorkflowNode, ActorType, WorkflowScenario } from "./types";
 
 interface Props {
   node: WorkflowNode;
+  scenarios: WorkflowScenario[];
   onUpdate: (nodeId: string, patch: Record<string, unknown>) => void;
   onDelete: (nodeId: string) => void;
   onClose: () => void;
+  onToggleScenario: (scenarioId: string, nodeId: string) => void;
 }
 
 const ACTOR_OPTIONS: { value: ActorType; label: string; icon: string; color: string }[] = [
@@ -23,7 +25,14 @@ const NODE_TYPE_LABEL: Record<string, string> = {
   end:      "End",
 };
 
-export function NodeEditPanel({ node, onUpdate, onDelete, onClose }: Props) {
+export function NodeEditPanel({
+  node,
+  scenarios,
+  onUpdate,
+  onDelete,
+  onClose,
+  onToggleScenario,
+}: Props) {
   const data = node.data as Record<string, unknown>;
   const typeLabel = NODE_TYPE_LABEL[node.type ?? ""] ?? "Node";
 
@@ -189,7 +198,80 @@ export function NodeEditPanel({ node, onUpdate, onDelete, onClose }: Props) {
           />
         </div>
 
-        {/* Node ID (read-only, useful for JSON/scenario editing) */}
+        {/* Scenarios */}
+        {scenarios.length > 0 && (
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontSize: 11,
+                fontWeight: 600,
+                color: T.textSubtle,
+                marginBottom: 6,
+                letterSpacing: "0.05em",
+              }}
+            >
+              SCENARIOS
+            </label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {scenarios.map((s) => {
+                const included = s.nodeIds.includes(node.id);
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => onToggleScenario(s.id, node.id)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "6px 9px",
+                      borderRadius: 4,
+                      border: `1px solid ${included ? s.color : T.border}`,
+                      background: included ? `${s.color}12` : "transparent",
+                      color: included ? s.color : T.textSubtle,
+                      fontSize: 12,
+                      fontWeight: included ? 600 : 400,
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 120ms",
+                      width: "100%",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!included) {
+                        e.currentTarget.style.background = T.surfaceHovered;
+                        e.currentTarget.style.color = T.text;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!included) {
+                        e.currentTarget.style.background = "transparent";
+                        e.currentTarget.style.color = T.textSubtle;
+                      }
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 9,
+                        height: 9,
+                        borderRadius: "50%",
+                        background: s.color,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {s.label}
+                    </span>
+                    {included && (
+                      <span style={{ fontSize: 10, opacity: 0.8 }}>✓</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Node ID */}
         <div>
           <label
             style={{
@@ -209,9 +291,10 @@ export function NodeEditPanel({ node, onUpdate, onDelete, onClose }: Props) {
               borderRadius: 4,
               border: `1px solid ${T.borderSubtle}`,
               background: T.surfaceSunken,
-              fontSize: 12,
+              fontSize: 11,
               color: T.textSubtlest,
               fontFamily: "monospace",
+              wordBreak: "break-all",
             }}
           >
             {node.id}
