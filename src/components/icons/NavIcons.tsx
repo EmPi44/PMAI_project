@@ -46,6 +46,15 @@ export function RocketIcon() {
   );
 }
 
+export function WorkflowsIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="5" height="5" rx="1" /><rect x="16" y="3" width="5" height="5" rx="1" /><rect x="9.5" y="16" width="5" height="5" rx="1" />
+      <path d="M5.5 8v2c0 1 .5 1.5 1.5 1.5h10c1 0 1.5-.5 1.5-1.5V8M12 13.5V16" />
+    </svg>
+  );
+}
+
 export function ListIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">

@@ -10,6 +10,7 @@ import {
   ListIcon,
   CodeIcon,
   RocketIcon,
+  WorkflowsIcon,
   CollapseIcon,
   SettingsIcon,
 } from "@/components/icons";
@@ -29,6 +30,12 @@ interface NavGroup {
 }
 
 const NAV_ITEMS: NavGroup[] = [
+  {
+    group: "PROJECT",
+    items: [
+      { label: "Workflows", Icon: WorkflowsIcon, href: "/workflows" },
+    ],
+  },
   {
     group: "PLANNING",
     items: [
