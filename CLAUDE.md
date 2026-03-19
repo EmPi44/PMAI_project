@@ -44,3 +44,51 @@ Key principles:
 - Use `next/image` for images, `next/font` for fonts, `next/link` for navigation
 - Minimize client-side JavaScript; push logic to the server where possible
 - Always verify with `tsc --noEmit` + build after changes
+
+
+# Project
+
+Full-stack app with Next.js frontend, Python backend, and Supabase for database, storage and authentication.
+
+## Tech Stack
+- Next.js (App Router) + TypeScript strict mode
+- Supabase - PostgreSQL, Storage, Authentication
+- Python backend
+- React Testing Library + Playwright for frontend tests
+- pytest for Python backend tests
+
+## Key Directories
+- `/app` - Next.js app router pages and API routes
+- `/components` - React components
+- `/lib` - Utilities, helpers, type definitions
+- `/backend` - Python backend
+
+## Commands
+- `npm run dev` - Dev server
+- `npm run test` - Run frontend tests
+- `npm run test:e2e` - Playwright E2E tests
+- `npm run lint` - ESLint check
+- `pytest` - Run Python backend tests
+
+## Architecture Rules
+- Simple/straightforward DB operations go in Supabase database functions
+- Complex business logic goes in the Python backend
+- Never use `any` types in TypeScript
+- Server Components by default - only add "use client" when needed
+- Use Supabase Auth helpers - never roll custom auth
+
+## Testing Approach
+- Python backend: strict TDD - write failing test first, then implement (red → green → refactor)
+- Next.js utils and custom hooks: TDD
+- React components: write tests alongside using React Testing Library
+- Critical user flows (auth, key journeys): Playwright E2E tests
+- Supabase DB functions: manual verification against dev DB
+- Never mark a feature done without running the relevant tests
+
+## Workflow
+- For research tasks, spawn parallel subagents instead of doing sequentially
+- When investigating a bug, use a subagent to explore the codebase while keeping main context clean
+- For large refactors, use a subagent to map all usages before touching anything
+- For changes under 20 lines just do it - for larger changes show a plan first
+- After any code change, run lint + typecheck before saying you're done
+- Use /clear between unrelated tasks
