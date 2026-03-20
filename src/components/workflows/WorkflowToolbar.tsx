@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { T } from "@/lib/tokens";
 import type { WorkflowScenario, ActorType } from "./types";
@@ -149,6 +149,16 @@ export function WorkflowToolbar({
 }: Props) {
   const router = useRouter();
   const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const addBtnRef = useRef<HTMLDivElement>(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+
+  const openAddMenu = () => {
+    if (addBtnRef.current) {
+      const rect = addBtnRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 6, left: rect.left });
+    }
+    setAddMenuOpen(true);
+  };
 
   return (
     <div
@@ -216,7 +226,7 @@ export function WorkflowToolbar({
       </span>
 
       {/* Add node dropdown */}
-      <div style={{ position: "relative", flexShrink: 0 }}>
+      <div ref={addBtnRef} style={{ position: "relative", flexShrink: 0 }}>
         {addMenuOpen && (
           <div
             onClick={() => setAddMenuOpen(false)}
@@ -228,7 +238,7 @@ export function WorkflowToolbar({
           />
         )}
         <button
-          onClick={() => setAddMenuOpen((o) => !o)}
+          onClick={openAddMenu}
           style={{
             display: "flex",
             alignItems: "center",
@@ -250,9 +260,9 @@ export function WorkflowToolbar({
         {addMenuOpen && (
           <div
             style={{
-              position: "absolute",
-              top: "calc(100% + 6px)",
-              left: 0,
+              position: "fixed",
+              top: dropdownPos.top,
+              left: dropdownPos.left,
               zIndex: 50,
               background: T.surface,
               border: `1px solid ${T.border}`,
