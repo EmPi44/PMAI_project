@@ -6,7 +6,7 @@ import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { T, FONT_STACK } from "@/lib/tokens";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, projectKey }: { children: React.ReactNode; projectKey?: string }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const pathname = usePathname();
 
@@ -27,6 +27,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((c) => !c)}
         activePath={pathname}
+        projectKey={projectKey}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />

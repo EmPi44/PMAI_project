@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { T, FONT_STACK } from "@/lib/tokens";
-import { getProjectSync } from "@/domains/projects/services";
+import { useCurrentProject } from "@/lib/context/project-context";
 import type { ProjectCharter, Objective, Milestone, Stakeholder, StakeholderType, InfluenceLevel } from "@/domains/projects/types";
 
 // ─── Inline edit helpers ────────────────────────────────────────────────────
@@ -860,7 +860,7 @@ function StakeholderCard({
 // ─── Main view ────────────────────────────────────────────────────────────────
 
 export function ProjectOverviewView() {
-  const project = getProjectSync();
+  const project = useCurrentProject();
   const [charter, setCharter] = useState<ProjectCharter>({ ...project.charter });
 
   const update = useCallback(<K extends keyof ProjectCharter>(key: K, value: ProjectCharter[K]) => {

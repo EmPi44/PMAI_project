@@ -23,7 +23,7 @@ import {
 } from "@/components/icons";
 import { AvatarCircle } from "@/components/ui";
 import { getUserSync } from "@/domains/users/services";
-import { getProjectSync } from "@/domains/projects/services";
+import { useCurrentProject } from "@/lib/context/project-context";
 
 interface NavItem {
   label: string;
@@ -36,58 +36,63 @@ interface NavGroup {
   items: NavItem[];
 }
 
-const NAV_ITEMS: NavGroup[] = [
-  {
-    group: "PROJECT",
-    items: [
-      { label: "Overview",  Icon: OverviewIcon,   href: "/project/overview" },
-      { label: "Metrics",       Icon: MetricsIcon,       href: "/project/metrics" },
-      { label: "Requirements",  Icon: RequirementsIcon,  href: "/requirements" },
-      { label: "Workflows",     Icon: WorkflowsIcon,     href: "/workflows" },
-      { label: "Questions", Icon: QuestionsIcon,  href: "/questions" },
-      { label: "Docs",      Icon: DocsIcon,       href: "/docs" },
-    ],
-  },
-  {
-    group: "TEAM",
-    items: [
-      { label: "Team",    Icon: TeamIcon,    href: "/team" },
-      { label: "Clients", Icon: ClientsIcon, href: "/clients" },
-    ],
-  },
-  {
-    group: "PLANNING",
-    items: [
-      { label: "Timeline",  Icon: TimelineIcon, href: "/timeline" },
-      { label: "Board",     Icon: BoardIcon,    href: "/board" },
-      { label: "Backlog",   Icon: BacklogIcon,  href: "/backlog" },
-      { label: "Calendar",  Icon: CalendarIcon, href: "/calendar" },
-      { label: "List",      Icon: ListIcon,     href: "/list" },
-    ],
-  },
-  {
-    group: "DEVELOPMENT",
-    items: [
-      { label: "Code", Icon: CodeIcon, href: "#" },
-    ],
-  },
-  {
-    group: "OPERATIONS",
-    items: [
-      { label: "Deployments", Icon: RocketIcon, href: "#" },
-    ],
-  },
-];
+function buildNavItems(key: string): NavGroup[] {
+  const p = key ? `/projects/${key}` : "";
+  return [
+    {
+      group: "PROJECT",
+      items: [
+        { label: "Overview",     Icon: OverviewIcon,      href: `${p}/project/overview` },
+        { label: "Metrics",      Icon: MetricsIcon,       href: `${p}/project/metrics` },
+        { label: "Requirements", Icon: RequirementsIcon,  href: `${p}/requirements` },
+        { label: "Workflows",    Icon: WorkflowsIcon,     href: `${p}/workflows` },
+        { label: "Questions",    Icon: QuestionsIcon,     href: `${p}/questions` },
+        { label: "Docs",         Icon: DocsIcon,          href: `${p}/docs` },
+      ],
+    },
+    {
+      group: "TEAM",
+      items: [
+        { label: "Team",    Icon: TeamIcon,    href: `${p}/team` },
+        { label: "Clients", Icon: ClientsIcon, href: `${p}/clients` },
+      ],
+    },
+    {
+      group: "PLANNING",
+      items: [
+        { label: "Timeline", Icon: TimelineIcon, href: `${p}/timeline` },
+        { label: "Board",    Icon: BoardIcon,    href: `${p}/board` },
+        { label: "Backlog",  Icon: BacklogIcon,  href: `${p}/backlog` },
+        { label: "Calendar", Icon: CalendarIcon, href: `${p}/calendar` },
+        { label: "List",     Icon: ListIcon,     href: `${p}/list` },
+      ],
+    },
+    {
+      group: "DEVELOPMENT",
+      items: [
+        { label: "Code", Icon: CodeIcon, href: "#" },
+      ],
+    },
+    {
+      group: "OPERATIONS",
+      items: [
+        { label: "Deployments", Icon: RocketIcon, href: "#" },
+      ],
+    },
+  ];
+}
 
 interface Props {
   collapsed: boolean;
   onToggle: () => void;
   activePath: string;
+  projectKey?: string;
 }
 
-export function Sidebar({ collapsed, onToggle, activePath }: Props) {
-  const project = getProjectSync();
+export function Sidebar({ collapsed, onToggle, activePath, projectKey = "" }: Props) {
+  const project = useCurrentProject();
   const currentUser = getUserSync("SC");
+  const navItems = buildNavItems(projectKey);
 
   return (
     <aside
@@ -179,7 +184,7 @@ export function Sidebar({ collapsed, onToggle, activePath }: Props) {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-2" style={{ scrollbarWidth: "none" }}>
-        {NAV_ITEMS.map((group) => (
+        {navItems.map((group) => (
           <div key={group.group} className="mb-1.5">
             {!collapsed && (
               <div
@@ -195,7 +200,7 @@ export function Sidebar({ collapsed, onToggle, activePath }: Props) {
               </div>
             )}
             {group.items.map((item) => {
-              const isActive = activePath === item.href;
+              const isActive = item.href !== "#" && activePath.startsWith(item.href);
               return (
                 <Link
                   key={item.label}

@@ -40,8 +40,12 @@ export interface ProjectCharter {
 }
 
 export interface Project {
+  id: string;
   key: string;
   name: string;
   type: string;
+  description: string;
+  avatarUrl: string | null;
+  color: string | null;
   charter: ProjectCharter;
 }

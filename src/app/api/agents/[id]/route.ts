@@ -5,7 +5,7 @@ const AGENTS_DIR = join(process.cwd(), ".claude", "agents");
 
 export async function DELETE(
   _req: Request,
-  ctx: RouteContext<"/api/agents/[id]">
+  ctx: { params: Promise<{ id: string }> }
 ) {
   const { id } = await ctx.params;
   await unlink(join(AGENTS_DIR, `${id}.json`));

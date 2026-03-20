@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSprintIssues, useBacklogIssues, useCreateIssue, useUpdateIssue } from "@/domains/issues/api";
+import { useCurrentProject } from "@/lib/context/project-context";
 import { useUsers } from "@/domains/users/api";
 import { useSprints } from "@/domains/sprints/api";
 import { SprintSection } from "./SprintSection";
@@ -11,8 +12,9 @@ import type { IssueStatus } from "@/domains/issues/types";
 export function BacklogView() {
   const [sprintExpanded, setSprintExpanded] = useState(true);
   const [backlogExpanded, setBacklogExpanded] = useState(true);
+  const project = useCurrentProject();
 
-  const { data: sprints } = useSprints("NOVA");
+  const { data: sprints } = useSprints(project.key);
   const activeSprint = sprints?.find((s) => s.status === "active");
 
   const { data: sprintIssues = [] } = useSprintIssues(activeSprint?.id ?? "sprint-24");

@@ -48,6 +48,11 @@ across all new components. Key values:
 
 ## Frontend Engineering Standards
 
+**Design system override (project-specific):** This project uses the **Atlassian Design System** exclusively.
+Do NOT use shadcn/ui or any generic component library - even if the global CLAUDE.md suggests them as defaults.
+Tailwind CSS is installed and used for utility classes, but design tokens (colors, spacing, typography) come
+from Atlassian, not Tailwind defaults or shadcn/ui. All UI patterns follow Atlassian components (see Design System Guidelines above).
+
 This is a **Next.js app**. Always apply `vercel-react-best-practices` rules when writing or modifying
 React/Next.js code. Prioritize CRITICAL rules (async components, bundle optimization) over lower priority ones.
 Reference `~/.claude/skills/vercel-react-best-practices/rules/` for detailed patterns.
@@ -80,10 +85,14 @@ Full-stack app with Next.js frontend, Python backend, and Supabase for database,
 
 ## Commands
 - `npm run dev` - Dev server
-- `npm run test` - Run frontend tests
-- `npm run test:e2e` - Playwright E2E tests
+- `npm run build` - Production build
 - `npm run lint` - ESLint check
+- `npm run typecheck` - TypeScript type check (`tsc --noEmit`)
+- `npx playwright test` - Run E2E tests (Playwright installed, config at `playwright.config.ts`)
 - `pytest` - Run Python backend tests
+
+> Note: RTL/vitest integration test infrastructure not yet set up. When adding frontend tests,
+> set up vitest + React Testing Library first.
 
 ## Architecture Rules
 - Simple/straightforward DB operations go in Supabase database functions
@@ -93,12 +102,20 @@ Full-stack app with Next.js frontend, Python backend, and Supabase for database,
 - Use Supabase Auth helpers - never roll custom auth
 
 ## Testing Approach
+
+Follow the **Testing Trophy** (not the old pyramid):
+- **Static** (TypeScript + ESLint): always on, highest ROI
+- **Integration** (React Testing Library): main investment for frontend - test what users see and do, not implementation details. If you refactor without changing behavior, tests should not break. Minimize mocks; heavy mocking kills confidence.
+- **Unit**: selective - pure logic only: utility functions, data transformations, hooks with complex state. Do NOT write unit tests for React components.
+- **E2E** (Playwright): critical paths only - auth and core user journeys. Not every feature.
+
+Layer-by-layer rules:
 - **Before writing tests**: decide HOW this will be tested and confirm it's feasible - flag early if the design makes it untestable
-- Python backend: strict TDD - write failing test first, then implement (red → green → refactor)
-- Next.js utils and custom hooks: TDD
-- React components: write tests alongside using React Testing Library
-- Critical user flows (auth, key journeys): Playwright E2E tests
-- Supabase DB functions: manual verification against dev DB
+- **Python backend**: strict TDD - write failing test first, then implement (red → green → refactor)
+- **Next.js utils and custom hooks**: TDD
+- **React components**: integration tests with React Testing Library - test behavior from the user's perspective, not internals
+- **Critical user flows** (auth, key journeys): Playwright E2E tests
+- **Supabase DB functions**: manual verification against dev DB
 - Never mark a feature done without running the relevant tests
 - **Parallel agents for tests**: when running multiple independent suites (e.g. unit + integration + E2E), spawn them as parallel agents - each suite runs in its own context, no shared state, faster total time
 

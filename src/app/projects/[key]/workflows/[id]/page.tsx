@@ -3,7 +3,7 @@ import { getWorkflow } from "@/lib/supabase/workflows";
 import { WorkflowCanvas } from "@/components/workflows/WorkflowCanvas";
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: Promise<{ key: string; id: string }>;
   searchParams: Promise<{ scenario?: string }>;
 }
 

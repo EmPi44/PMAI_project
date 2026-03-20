@@ -7,9 +7,7 @@ import { usePages, useCreatePage, useUpdatePage, useDeletePage } from "@/domains
 import { PageTree } from "./PageTree";
 import { PageEditor } from "./PageEditor";
 import { ProjectDocuments } from "./ProjectDocuments";
-
-// TODO: replace with project context once multi-project routing is in place
-const PROJECT_ID = "b92e50cc-2022-43d6-9f3c-3cd85813f777";
+import { useCurrentProject } from "@/lib/context/project-context";
 
 function buildTree(pages: Page[]): PageTreeNode[] {
   const map = new Map<string, PageTreeNode>();
@@ -33,6 +31,9 @@ function buildTree(pages: Page[]): PageTreeNode[] {
 }
 
 export function DocsView() {
+  const project = useCurrentProject();
+  const PROJECT_ID = project.id;
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // Optimistic title overrides - live as user types, before DB round-trip
   const [titleOverrides, setTitleOverrides] = useState<Record<string, string>>({});

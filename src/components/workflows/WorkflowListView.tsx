@@ -15,6 +15,7 @@ import {
 
 interface Props {
   workflows: Workflow[];
+  projectId: string;
 }
 
 type WorkflowStatus = "active" | "draft" | "archived";
@@ -493,7 +494,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
-export function WorkflowListView({ workflows: initial }: Props) {
+export function WorkflowListView({ workflows: initial, projectId }: Props) {
   const router = useRouter();
   const [workflows, setWorkflows] = useState<Workflow[]>(initial);
 
@@ -576,7 +577,7 @@ export function WorkflowListView({ workflows: initial }: Props) {
   async function handleCreate() {
     const name = newName.trim();
     if (!name) return;
-    const id = await createWorkflow(name, newDesc.trim());
+    const id = await createWorkflow(projectId, name, newDesc.trim());
     setWorkflows((prev) => [
       { id, name, description: newDesc.trim(), status: "draft", updatedAt: new Date().toISOString().split("T")[0], nodes: [], edges: [], scenarios: [] },
       ...prev,
@@ -635,7 +636,7 @@ export function WorkflowListView({ workflows: initial }: Props) {
   // ── Duplicate ─────────────────────────────────────────────────────────────
   async function handleDuplicate(workflow: Workflow) {
     setActiveMenu(null);
-    const newId = await duplicateWorkflow(workflow);
+    const newId = await duplicateWorkflow(workflow, projectId);
     setWorkflows((prev) => [
       { ...workflow, id: newId, name: `${workflow.name} (Copy)`, status: "draft", updatedAt: new Date().toISOString().split("T")[0] },
       ...prev,

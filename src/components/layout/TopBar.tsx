@@ -1,14 +1,21 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { T } from "@/lib/tokens";
 import { SearchIcon, FilterIcon, StarIcon } from "@/components/icons";
 import { AvatarCircle } from "@/components/ui";
 import { getUserSync } from "@/domains/users/services";
-import { getProjectSync } from "@/domains/projects/services";
+import { useCurrentProject } from "@/lib/context/project-context";
 
 export function TopBar() {
-  const project = getProjectSync();
+  const project = useCurrentProject();
   const currentUser = getUserSync("SC");
+  const pathname = usePathname();
+  const segments = pathname.split("/").filter(Boolean);
+  // segments: ["projects", "NOVA", "backlog"] → last segment is the page name
+  const pageName = segments[segments.length - 1] ?? "";
+  const pageLabel = pageName.charAt(0).toUpperCase() + pageName.slice(1);
 
   return (
     <header
@@ -23,11 +30,11 @@ export function TopBar() {
       {/* Left: breadcrumb + title */}
       <div className="flex items-center gap-4">
         <nav className="flex items-center gap-1" style={{ fontSize: 13, color: T.textSubtlest }} aria-label="Breadcrumb">
-          <span className="cursor-pointer hover:underline" style={{ transition: "color 100ms" }} onMouseEnter={(e) => e.currentTarget.style.color = T.brandBold} onMouseLeave={(e) => e.currentTarget.style.color = T.textSubtlest}>Projects</span>
+          <Link href="/projects" style={{ color: T.textSubtlest, textDecoration: "none", transition: "color 100ms" }} onMouseEnter={(e) => e.currentTarget.style.color = T.brandBold} onMouseLeave={(e) => e.currentTarget.style.color = T.textSubtlest}>Projects</Link>
           <span style={{ margin: "0 2px" }}>/</span>
-          <span className="cursor-pointer hover:underline" style={{ transition: "color 100ms" }} onMouseEnter={(e) => e.currentTarget.style.color = T.brandBold} onMouseLeave={(e) => e.currentTarget.style.color = T.textSubtlest}>{project.key}</span>
+          <Link href={`/projects/${project.key}`} style={{ color: T.textSubtlest, textDecoration: "none", transition: "color 100ms" }} onMouseEnter={(e) => e.currentTarget.style.color = T.brandBold} onMouseLeave={(e) => e.currentTarget.style.color = T.textSubtlest}>{project.key}</Link>
           <span style={{ margin: "0 2px" }}>/</span>
-          <span style={{ fontWeight: 600, color: T.text }}>Backlog</span>
+          <span style={{ fontWeight: 600, color: T.text }}>{pageLabel}</span>
         </nav>
         <span className="cursor-pointer" style={{ color: T.textDisabled, transition: "color 100ms" }} onMouseEnter={(e) => e.currentTarget.style.color = T.textSubtle} onMouseLeave={(e) => e.currentTarget.style.color = T.textDisabled}>
           <StarIcon />

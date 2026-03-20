@@ -1,9 +1,13 @@
 import type { Project } from "../types";
 
 const PROJECT: Project = {
+  id: "b92e50cc-2022-43d6-9f3c-3cd85813f777",
   key: "NOVA",
   name: "Nova Platform",
   type: "Software project",
+  description: "",
+  avatarUrl: null,
+  color: null,
   charter: {
     vision:
       "Build the most intelligent payment infrastructure platform that empowers businesses to process, analyze, and optimize every transaction with AI-driven precision.",

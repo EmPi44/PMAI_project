@@ -5,6 +5,7 @@ import type { Workflow, WorkflowNode, WorkflowEdge, WorkflowScenario } from "@/c
 
 interface WorkflowRow {
   id: string;
+  project_id: string;
   name: string;
   description: string | null;
   status: "active" | "draft" | "archived";
@@ -91,12 +92,13 @@ function mapWorkflow(
 
 // ── Queries ───────────────────────────────────────────────────────────────────
 
-/** Returns all non-deleted workflows, each with its nodes/edges/scenarios. */
-export async function listWorkflows(): Promise<Workflow[]> {
+/** Returns all non-deleted workflows for a project, each with its nodes/edges/scenarios. */
+export async function listWorkflows(projectId: string): Promise<Workflow[]> {
   const { data: rows, error } = await supabase
     .from("workflows")
-    .select("id, name, description, status, updated_at")
+    .select("id, project_id, name, description, status, updated_at")
     .is("deleted_at", null)
+    .eq("project_id", projectId)
     .order("updated_at", { ascending: false });
 
   if (error) throw error;
@@ -181,12 +183,13 @@ export async function getWorkflow(id: string): Promise<Workflow | null> {
 
 /** Creates a new workflow row and returns its UUID. */
 export async function createWorkflow(
+  projectId: string,
   name: string,
   description: string
 ): Promise<string> {
   const { data, error } = await supabase
     .from("workflows")
-    .insert({ name, description: description || null, status: "draft" })
+    .insert({ project_id: projectId, name, description: description || null, status: "draft" })
     .select("id")
     .single();
 
@@ -258,8 +261,8 @@ export async function updateWorkflowStatus(
 }
 
 /** Duplicates a workflow (nodes, edges, scenarios) and returns the new workflow ID. */
-export async function duplicateWorkflow(source: Workflow): Promise<string> {
-  const newId = await createWorkflow(`${source.name} (Copy)`, source.description);
+export async function duplicateWorkflow(source: Workflow, projectId: string): Promise<string> {
+  const newId = await createWorkflow(projectId, `${source.name} (Copy)`, source.description);
 
   if (source.nodes.length > 0) {
     const nodeRows = source.nodes.map((n) => ({

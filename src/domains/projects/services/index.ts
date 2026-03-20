@@ -1,1 +1,1 @@
-export { fetchProject, getProjectSync } from "./mockProjectService";
+export { fetchProject } from "./mockProjectService";

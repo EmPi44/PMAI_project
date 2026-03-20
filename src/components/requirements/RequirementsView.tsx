@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { T, FONT_STACK } from "@/lib/tokens";
+import { useCurrentProject } from "@/lib/context/project-context";
 import {
   useRequirements,
   useCreateRequirement,
@@ -19,8 +20,6 @@ import type {
 } from "@/domains/requirements";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-
-const PROJECT_ID = "default";
 
 const TYPE_STYLES: Record<RequirementType, { bg: string; text: string; label: string }> = {
   functional:     { bg: "#E9F2FF", text: "#0C66E4", label: "Functional" },
@@ -294,6 +293,9 @@ function DisplayRow({ req, onEdit, onDelete }: DisplayRowProps) {
 // ── Main view ─────────────────────────────────────────────────────────────────
 
 export function RequirementsView() {
+  const project = useCurrentProject();
+  const PROJECT_ID = project.id;
+
   const [activeTab, setActiveTab] = useState<ActiveTab>("all");
   const [adding, setAdding] = useState(false);
   const [newDraft, setNewDraft] = useState<RowDraft>(emptyDraft("all"));

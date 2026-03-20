@@ -3,7 +3,7 @@
 import { T, FONT_STACK, ISSUE_TYPE_COLORS } from "@/lib/tokens";
 import { useIssues } from "@/domains/issues/api";
 import { useSprints } from "@/domains/sprints/api";
-import { getProjectSync } from "@/domains/projects/services";
+import { useCurrentProject } from "@/lib/context/project-context";
 import type { IssueType } from "@/domains/issues/types";
 
 // ─── Stat card ───────────────────────────────────────────────────────────────
@@ -227,7 +227,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 // ─── Main view ────────────────────────────────────────────────────────────────
 
 export function ProjectMetricsView() {
-  const project = getProjectSync();
+  const project = useCurrentProject();
   const { data: issues = [], isLoading: issuesLoading } = useIssues();
   const { data: sprints = [], isLoading: sprintsLoading } = useSprints(project.key);
 
