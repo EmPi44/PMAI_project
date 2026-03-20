@@ -84,12 +84,28 @@ Full-stack app with Next.js frontend, Python backend, and Supabase for database,
 - `/backend` - Python backend
 
 ## Commands
-- `npm run dev` - Dev server
+- `npm run dev` - Dev server (human use, no log file)
+- `npm run dev:log` - Dev server with log capture to `logs/next-dev.log` (use this when debugging)
 - `npm run build` - Production build
 - `npm run lint` - ESLint check
 - `npm run typecheck` - TypeScript type check (`tsc --noEmit`)
 - `npx playwright test` - Run E2E tests (Playwright installed, config at `playwright.config.ts`)
 - `pytest` - Run Python backend tests
+
+## Dev Server Log Rule (MANDATORY for Claude)
+When Claude needs to start the dev server (e.g., to investigate a bug, test a feature, or verify
+a change), ALWAYS start it with log capture so the output is reviewable:
+```bash
+mkdir -p logs && npm run dev:log &
+```
+Then wait ~3s for startup, check it started cleanly:
+```bash
+sleep 3 && tail -30 logs/next-dev.log
+```
+To check server logs at any point: `tail -50 logs/next-dev.log`
+To check for errors specifically: `grep -i "error\|failed\|warn" logs/next-dev.log`
+
+The `logs/` directory is gitignored. Never commit log files.
 
 > Note: RTL/vitest integration test infrastructure not yet set up. When adding frontend tests,
 > set up vitest + React Testing Library first.
