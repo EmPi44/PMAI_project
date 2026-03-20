@@ -245,6 +245,18 @@ export async function updateWorkflow(
   if (error) throw error;
 }
 
+/** Updates only the status of a workflow (for bulk/inline status changes). */
+export async function updateWorkflowStatus(
+  id: string,
+  status: "active" | "draft" | "archived"
+): Promise<void> {
+  const { error } = await supabase
+    .from("workflows")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
 /** Duplicates a workflow (nodes, edges, scenarios) and returns the new workflow ID. */
 export async function duplicateWorkflow(source: Workflow): Promise<string> {
   const newId = await createWorkflow(`${source.name} (Copy)`, source.description);
