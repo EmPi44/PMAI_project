@@ -222,6 +222,74 @@ export async function saveScenarios(
   if (insErr) throw insErr;
 }
 
+/** Soft-deletes a workflow by ID. */
+export async function deleteWorkflow(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("workflows")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+/** Updates name, description, and status of a workflow. */
+export async function updateWorkflow(
+  id: string,
+  name: string,
+  description: string,
+  status: "active" | "draft" | "archived"
+): Promise<void> {
+  const { error } = await supabase
+    .from("workflows")
+    .update({ name, description: description || null, status, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+/** Duplicates a workflow (nodes, edges, scenarios) and returns the new workflow ID. */
+export async function duplicateWorkflow(source: Workflow): Promise<string> {
+  const newId = await createWorkflow(`${source.name} (Copy)`, source.description);
+
+  if (source.nodes.length > 0) {
+    const nodeRows = source.nodes.map((n) => ({
+      workflow_id: newId,
+      node_key: n.id,
+      type: n.type,
+      position_x: n.position.x,
+      position_y: n.position.y,
+      data: n.data,
+    }));
+    const { error } = await supabase.from("workflow_nodes").insert(nodeRows);
+    if (error) throw error;
+  }
+
+  if (source.edges.length > 0) {
+    const edgeRows = source.edges.map((e) => ({
+      workflow_id: newId,
+      edge_key: e.id,
+      source_key: e.source,
+      target_key: e.target,
+      label: typeof (e as { label?: unknown }).label === "string" ? (e as { label?: string }).label : null,
+      data: {},
+    }));
+    const { error } = await supabase.from("workflow_edges").insert(edgeRows);
+    if (error) throw error;
+  }
+
+  if (source.scenarios.length > 0) {
+    const scenarioRows = source.scenarios.map((s) => ({
+      workflow_id: newId,
+      label: s.label,
+      color: s.color,
+      node_keys: s.nodeIds,
+      edge_keys: s.edgeIds,
+    }));
+    const { error } = await supabase.from("workflow_scenarios").insert(scenarioRows);
+    if (error) throw error;
+  }
+
+  return newId;
+}
+
 /** Upserts all nodes and edges for a workflow (replaces canvas state). */
 export async function saveCanvas(
   workflowId: string,
