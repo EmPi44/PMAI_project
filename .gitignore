@@ -47,5 +47,8 @@ next-env.d.ts
 # git worktrees (superpowers workflow)
 .worktrees/
 
+# visual companion brainstorming sessions
+.superpowers/
+
 # dev server logs
 /logs/
